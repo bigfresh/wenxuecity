@@ -1,0 +1,12 @@
+﻿@model List<Link>
+
+
+    @foreach (var cm in Model)
+    {
+        <div class="row">
+            <div class="col-lg-12 center-block">
+                @Html.ActionLink(@cm.Name, "Index", "Article", new {url = @cm.Url}, new {target = "_blank"})
+            </div>
+        </div>
+    }
+
