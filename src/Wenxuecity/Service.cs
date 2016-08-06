@@ -40,15 +40,8 @@ namespace Wenxuecity
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var list = new List<Link>();
-
-            var test = doc.DocumentNode.Descendants("div").Where(d => d.Attributes.Contains("class") && d.Attributes["class"].Value.Contains("col"));
-
-
-            list.AddRange(GetLinks(doc.DocumentNode.SelectNodes(@"/html/body/div[4]/div[2]/div[2]")));
-            list.AddRange(GetLinks(doc.DocumentNode.SelectNodes(@"/html/body/div[4]/div[2]/div[3]")));
-
-            return list;
+            var divs = doc.DocumentNode.Descendants("div").Where(d => d.Attributes.Contains("class") && d.Attributes["class"].Value.Contains("col")).Take(2);
+            return GetLinks(divs);
         }
 
         public string GetArticleContent(string html)
@@ -78,23 +71,34 @@ namespace Wenxuecity
 
         private bool IsInternalImgLink(string href) => _settings.InternalImgUrls.Any(href.Contains);
 
-        private IEnumerable<Link> GetLinks(HtmlNodeCollection nodes)
+        private IEnumerable<Link> GetLinks(IEnumerable<HtmlNode> nodes)
         {
+            if (nodes == null)
+            {
+                throw  new ArgumentException("Node is null.", nameof(nodes));
+            }
+
             var list = new List<Link>();
 
-            var links = nodes.Descendants("a").GetEnumerator();
+            var enumerator = nodes.GetEnumerator();
 
-            while (links.MoveNext())
+            while (enumerator.MoveNext())
             {
-                var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href" && a.Value.Contains("news"));
+                var links = enumerator.Current.Descendants("a").GetEnumerator();
 
-                if (l != null)
+                while (links.MoveNext())
                 {
-                    list.Add(new Link
+                    //var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href" && a.Value.Contains("news"));
+                    var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href");
+
+                    if (l != null)
                     {
-                        Name = links.Current.InnerHtml,
-                        Url = $"{_settings.BaseUrl}{l.Value}"
-                    });
+                        list.Add(new Link
+                        {
+                            Name = links.Current.InnerHtml,
+                            Url = $"{_settings.BaseUrl}{l.Value}"
+                        });
+                    }
                 }
             }
 
