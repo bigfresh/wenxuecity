@@ -88,8 +88,7 @@ namespace Wenxuecity
 
                 while (links.MoveNext())
                 {
-                    //var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href" && a.Value.Contains("news"));
-                    var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href");
+                    var l = links.Current.Attributes.SingleOrDefault(a => a.Name == "href" && a.Value.Contains("news"));
 
                     if (l != null)
                     {
