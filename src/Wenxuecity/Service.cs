@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Wenxuecity
@@ -12,18 +11,19 @@ namespace Wenxuecity
     public class Service : IService
     {
         private readonly GlobalSettings _settings;
+        private readonly HttpClient _httpClient;
 
         public Service(IOptions<GlobalSettings> settings)
         {
             _settings = settings.Value;
+            _httpClient = new HttpClient();
         }
 
         public async Task<string> GetPageAsync(string url)
         {
             try
             {
-                using (var client = new HttpClient())
-                using (var response = await client.GetAsync(url))
+                using (var response = await _httpClient.GetAsync(url))
                 using (var content = response.Content)
                 {
                     return await content.ReadAsStringAsync();
